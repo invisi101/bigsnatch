@@ -44,7 +44,28 @@ pub async fn run(
     loop {
         poll_interval.tick().await;
 
-        // Drain connection events
+        // Drain DNS events FIRST so the cache is populated before we enrich connections
+        while let Some(item) = dns_rb.next() {
+            let data: &[u8] = &item;
+            if data.len() < std::mem::size_of::<BpfDnsEvent>() {
+                continue;
+            }
+
+            let dns_event: BpfDnsEvent =
+                unsafe { std::ptr::read_unaligned(data.as_ptr() as *const BpfDnsEvent) };
+
+            let len = dns_event.len as usize;
+            if len > 0 && len <= 512 {
+                if let Some(response) = dns_parser::parse_dns_response(&dns_event.data[..len]) {
+                    for (ip, ttl) in &response.addresses {
+                        dns_cache.insert(*ip, response.domain.clone(), *ttl);
+                        debug!("DNS: {} → {}", response.domain, ip);
+                    }
+                }
+            }
+        }
+
+        // Now drain connection events — DNS cache is up-to-date
         while let Some(item) = events_rb.next() {
             let data: &[u8] = &item;
             if data.len() < std::mem::size_of::<BpfConnectionEvent>() {
@@ -67,27 +88,6 @@ pub async fn run(
             );
 
             let _ = event_tx.send(enriched);
-        }
-
-        // Drain DNS events
-        while let Some(item) = dns_rb.next() {
-            let data: &[u8] = &item;
-            if data.len() < std::mem::size_of::<BpfDnsEvent>() {
-                continue;
-            }
-
-            let dns_event: BpfDnsEvent =
-                unsafe { std::ptr::read_unaligned(data.as_ptr() as *const BpfDnsEvent) };
-
-            let len = dns_event.len as usize;
-            if len > 0 && len <= 512 {
-                if let Some(response) = dns_parser::parse_dns_response(&dns_event.data[..len]) {
-                    for (ip, ttl) in &response.addresses {
-                        dns_cache.insert(*ip, response.domain.clone(), *ttl);
-                        debug!("DNS: {} → {}", response.domain, ip);
-                    }
-                }
-            }
         }
     }
 }
@@ -120,7 +120,26 @@ fn enrich_event(
         (IpAddr::V6(src), IpAddr::V6(dst))
     };
 
-    let domain = dns_cache.lookup(&dst_addr).unwrap_or_default();
+    let domain = dns_cache.lookup(&dst_addr).unwrap_or_else(|| {
+        // Fallback: try system reverse DNS lookup for IPs we missed
+        // Skip private/loopback addresses — no point in reverse-looking those up
+        let skip = match dst_addr {
+            IpAddr::V4(v4) => v4.is_loopback() || v4.is_private() || v4.is_link_local(),
+            IpAddr::V6(v6) => v6.is_loopback(),
+        };
+        if skip {
+            return String::new();
+        }
+        // Quick blocking reverse lookup — acceptable since we're already in a tight loop
+        match dns_lookup::lookup_addr(&dst_addr) {
+            Ok(host) if host != dst_addr.to_string() => {
+                // Cache it so we don't look it up again
+                dns_cache.insert(dst_addr, host.clone(), 300);
+                host
+            }
+            _ => String::new(),
+        }
+    });
 
     let protocol = if bpf_event.protocol == 6 {
         proto::Protocol::Tcp as i32

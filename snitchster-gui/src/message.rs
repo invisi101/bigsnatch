@@ -1,3 +1,4 @@
+use crate::model::destination::TrafficZone;
 use crate::proto;
 
 #[derive(Debug, Clone)]
@@ -11,25 +12,30 @@ pub enum Message {
     // User interactions
     SearchChanged(String),
     ProcessSelected(Option<String>),
-    ConnectionSelected(Option<u64>),
-    ColumnSortChanged(SortColumn),
+    ProtocolFilterChanged(ProtocolFilter),
     TogglePause,
     ToggleAutoScroll,
-    ProtocolFilterChanged(ProtocolFilter),
     ClearConnections,
+    Quit,
+
+    // Navigation
+    TrafficZoneChanged(TrafficZone),
+    DestinationSelected(Option<String>),
+    DestSortChanged(DestSortColumn),
+    DrillDown(String),
+    DrillDownBack,
+    ConnectionSelected(Option<u64>),
 
     // Internal
     Tick,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SortColumn {
-    Time,
-    Process,
-    Pid,
-    Domain,
-    Port,
-    Protocol,
+pub enum DestSortColumn {
+    Destination,
+    Count,
+    LastSeen,
+    Ports,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

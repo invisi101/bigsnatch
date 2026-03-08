@@ -1,4 +1,5 @@
 mod app;
+mod fonts;
 mod message;
 mod subscription;
 mod theme;
@@ -34,6 +35,7 @@ fn main() -> iced::Result {
     iced::application("Snitchster", app::App::update, app::App::view)
         .subscription(app::App::subscription)
         .theme(|_| theme::snitchster_theme())
+        .font(fonts::VEGAN_STYLE_BYTES)
         .window_size((1200.0, 800.0))
         .run()
 }

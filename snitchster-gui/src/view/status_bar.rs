@@ -6,8 +6,9 @@ use crate::theme::colors;
 
 pub fn view<'a>(
     is_connected: bool,
-    total_connections: usize,
+    total_events: usize,
     active_processes: usize,
+    total_destinations: usize,
     events_per_second: f64,
 ) -> Element<'a, Message> {
     let status_indicator = if is_connected {
@@ -20,7 +21,11 @@ pub fn view<'a>(
         row![
             status_indicator,
             Space::with_width(20),
-            text(format!("{} connections", total_connections))
+            text(format!("{} events", total_events))
+                .size(14)
+                .color(colors::TEXT_SECONDARY),
+            Space::with_width(20),
+            text(format!("{} destinations", total_destinations))
                 .size(14)
                 .color(colors::TEXT_SECONDARY),
             Space::with_width(20),

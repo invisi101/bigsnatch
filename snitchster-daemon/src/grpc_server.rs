@@ -14,7 +14,6 @@ use crate::process_cache::ProcessCache;
 use crate::proto;
 use crate::proto::monitor_server::{Monitor, MonitorServer};
 
-/// Shared state for tracking connected subscribers
 pub struct ClientTracker {
     pub subscriber_count: AtomicUsize,
     pub had_subscriber: AtomicBool,
@@ -26,6 +25,20 @@ impl ClientTracker {
             subscriber_count: AtomicUsize::new(0),
             had_subscriber: AtomicBool::new(false),
         }
+    }
+}
+
+/// Guard that decrements subscriber count when dropped.
+/// This is critical — when tonic drops a stream (dead client),
+/// the async generator cleanup code doesn't run, but Drop does.
+struct SubscriberGuard {
+    tracker: Arc<ClientTracker>,
+}
+
+impl Drop for SubscriberGuard {
+    fn drop(&mut self) {
+        let remaining = self.tracker.subscriber_count.fetch_sub(1, Ordering::SeqCst) - 1;
+        tracing::info!("GUI client disconnected ({} remaining)", remaining);
     }
 }
 
@@ -70,33 +83,55 @@ impl Monitor for MonitorService {
         let mut rx = self.event_tx.subscribe();
         let tracker = self.tracker.clone();
 
-        // Track this subscriber
         tracker.subscriber_count.fetch_add(1, Ordering::SeqCst);
         tracker.had_subscriber.store(true, Ordering::SeqCst);
         let count = tracker.subscriber_count.load(Ordering::SeqCst);
         info!("GUI client connected ({} active)", count);
 
+        // The guard decrements the count when the stream is dropped
+        let _guard = SubscriberGuard { tracker };
+
+        let start_time = self.start_time;
+        let process_cache = self.process_cache.clone();
+        let dns_cache = self.dns_cache.clone();
+
         let stream = async_stream::stream! {
+            // Move guard into the stream so it lives as long as the stream
+            let _guard = _guard;
+
             loop {
-                match rx.recv().await {
-                    Ok(conn) => {
+                match tokio::time::timeout(
+                    tokio::time::Duration::from_secs(3),
+                    rx.recv()
+                ).await {
+                    Ok(Ok(conn)) => {
                         yield Ok(proto::ServerEvent {
                             event: Some(proto::server_event::Event::Connection(conn)),
                         });
                     }
-                    Err(broadcast::error::RecvError::Lagged(n)) => {
+                    Ok(Err(broadcast::error::RecvError::Lagged(n))) => {
                         tracing::warn!("GUI client lagged, skipped {} events", n);
                         continue;
                     }
-                    Err(broadcast::error::RecvError::Closed) => {
+                    Ok(Err(broadcast::error::RecvError::Closed)) => {
                         break;
+                    }
+                    Err(_timeout) => {
+                        // Heartbeat — if client is dead, tonic drops the stream
+                        let status = proto::DaemonStatus {
+                            total_connections: 0,
+                            active_processes: process_cache.active_count() as u64,
+                            dns_cache_entries: dns_cache.len() as u64,
+                            uptime_seconds: start_time.elapsed().as_secs(),
+                            events_per_second: 0.0,
+                            ebpf_loaded: true,
+                        };
+                        yield Ok(proto::ServerEvent {
+                            event: Some(proto::server_event::Event::StatusUpdate(status)),
+                        });
                     }
                 }
             }
-
-            // Subscriber disconnected
-            let remaining = tracker.subscriber_count.fetch_sub(1, Ordering::SeqCst) - 1;
-            info!("GUI client disconnected ({} remaining)", remaining);
         };
 
         Ok(Response::new(Box::pin(stream)))

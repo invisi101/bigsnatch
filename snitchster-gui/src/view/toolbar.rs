@@ -2,19 +2,22 @@ use iced::widget::{button, container, pick_list, row, text, text_input, Space};
 use iced::{Element, Length};
 
 use crate::message::{Message, ProtocolFilter};
+use crate::theme::colors;
 
 pub fn view<'a>(
     search_query: &str,
     protocol_filter: ProtocolFilter,
     is_paused: bool,
-    auto_scroll: bool,
-    total_connections: usize,
+    _auto_scroll: bool,
+    destination_count: usize,
+    total_events: usize,
 ) -> Element<'a, Message> {
-    let title = text("Snitchster")
-        .size(28)
-        .font(iced::Font::with_name("monospace"));
+    let title = text("Big Snatch")
+        .size(46)
+        .font(crate::fonts::VEGAN_STYLE)
+        .color(colors::NEON_PINK);
 
-    let search = text_input("Search processes, domains, IPs...", search_query)
+    let search = text_input("Search processes, destinations...", search_query)
         .on_input(Message::SearchChanged)
         .width(300);
 
@@ -30,12 +33,34 @@ pub fn view<'a>(
     let pause_btn = button(text(pause_label).size(16))
         .on_press(Message::TogglePause);
 
-    let scroll_label = if auto_scroll { "Auto-scroll: ON" } else { "Auto-scroll: OFF" };
-    let scroll_btn = button(text(scroll_label).size(16))
-        .on_press(Message::ToggleAutoScroll);
-
     let clear_btn = button(text("Clear").size(16))
         .on_press(Message::ClearConnections);
+
+    let quit_btn = button(
+        text("Quit")
+            .size(30)
+            .font(crate::fonts::VEGAN_STYLE)
+            .color(colors::STATUS_DISCONNECTED),
+    )
+    .on_press(Message::Quit)
+    .style(|_theme, status| {
+        let bg = match status {
+            button::Status::Hovered | button::Status::Pressed => colors::BTN_GREY_HOVER,
+            _ => colors::BTN_GREY,
+        };
+        button::Style {
+            background: Some(iced::Background::Color(bg)),
+            border: iced::Border {
+                radius: 10.0.into(),
+                color: colors::BORDER,
+                width: 1.0,
+            },
+            text_color: colors::STATUS_DISCONNECTED,
+            ..Default::default()
+        }
+    });
+
+    let stats_text = format!("{} destinations  |  {} events", destination_count, total_events);
 
     container(
         row![
@@ -47,11 +72,11 @@ pub fn view<'a>(
             Space::with_width(10),
             pause_btn,
             Space::with_width(5),
-            scroll_btn,
-            Space::with_width(5),
             clear_btn,
             Space::with_width(Length::Fill),
-            text(format!("{} connections", total_connections)).size(16),
+            text(stats_text).size(15).color(colors::NEON_CYAN),
+            Space::with_width(10),
+            quit_btn,
         ]
         .spacing(5)
         .align_y(iced::Alignment::Center),

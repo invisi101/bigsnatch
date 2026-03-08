@@ -18,6 +18,8 @@ tracing-subscriber = { workspace = true }
 anyhow = { workspace = true }
 lru = "0.12"
 nix = { version = "0.29", features = ["user", "net", "socket"] }
+libc = "0.2"
+dns-lookup = "2"
 hickory-proto = "0.25"
 chrono = "0.4"
 tokio-stream = "0.1"
