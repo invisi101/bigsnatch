@@ -11,7 +11,7 @@ pub fn view<'a>(
     total_connections: usize,
 ) -> Element<'a, Message> {
     let title = text("Snitchster")
-        .size(20)
+        .size(28)
         .font(iced::Font::with_name("monospace"));
 
     let search = text_input("Search processes, domains, IPs...", search_query)
@@ -27,14 +27,14 @@ pub fn view<'a>(
     .placeholder("Protocol");
 
     let pause_label = if is_paused { "Resume" } else { "Pause" };
-    let pause_btn = button(text(pause_label).size(13))
+    let pause_btn = button(text(pause_label).size(16))
         .on_press(Message::TogglePause);
 
     let scroll_label = if auto_scroll { "Auto-scroll: ON" } else { "Auto-scroll: OFF" };
-    let scroll_btn = button(text(scroll_label).size(13))
+    let scroll_btn = button(text(scroll_label).size(16))
         .on_press(Message::ToggleAutoScroll);
 
-    let clear_btn = button(text("Clear").size(13))
+    let clear_btn = button(text("Clear").size(16))
         .on_press(Message::ClearConnections);
 
     container(
@@ -51,7 +51,7 @@ pub fn view<'a>(
             Space::with_width(5),
             clear_btn,
             Space::with_width(Length::Fill),
-            text(format!("{} connections", total_connections)).size(13),
+            text(format!("{} connections", total_connections)).size(16),
         ]
         .spacing(5)
         .align_y(iced::Alignment::Center),

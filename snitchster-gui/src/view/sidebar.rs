@@ -8,10 +8,10 @@ pub fn view<'a>(
     processes: &'a std::collections::BTreeMap<String, ProcessSummary>,
     selected: &Option<String>,
 ) -> Element<'a, Message> {
-    let header = text("Processes").size(14);
+    let header = text("Processes").size(18);
 
     let all_btn = {
-        let label = text("All").size(13);
+        let label = text("All").size(16);
         let btn = button(label).width(Length::Fill);
         if selected.is_none() {
             btn.on_press(Message::ProcessSelected(None))
@@ -27,7 +27,7 @@ pub fn view<'a>(
     sorted.sort_by(|a, b| b.1.connection_count.cmp(&a.1.connection_count));
 
     for (name, summary) in sorted {
-        let label = text(format!("{} ({})", name, summary.connection_count)).size(12);
+        let label = text(format!("{} ({})", name, summary.connection_count)).size(15);
         let btn = button(label)
             .width(Length::Fill)
             .on_press(Message::ProcessSelected(Some(name.clone())));

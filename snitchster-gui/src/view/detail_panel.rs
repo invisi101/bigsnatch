@@ -18,7 +18,7 @@ pub fn view<'a>(connection: Option<&'a ConnectionDisplay>) -> Element<'a, Messag
                 "{} (PID {}) -> {} [{}]",
                 conn.process_name, conn.pid, dest_display, conn.protocol
             ))
-            .size(13)
+            .size(17)
             .color(colors::TEXT_ACCENT);
 
             let user_info = format!("{} (uid:{})", conn.username, conn.uid);
@@ -47,7 +47,7 @@ pub fn view<'a>(connection: Option<&'a ConnectionDisplay>) -> Element<'a, Messag
         None => {
             container(
                 text("Select a connection to see details")
-                    .size(12)
+                    .size(15)
                     .color(colors::TEXT_SECONDARY),
             )
             .padding(8)
@@ -61,9 +61,9 @@ pub fn view<'a>(connection: Option<&'a ConnectionDisplay>) -> Element<'a, Messag
 fn detail_line<'a>(label: &'a str, value: String) -> Element<'a, Message> {
     row![
         text(format!("{}: ", label))
-            .size(11)
+            .size(15)
             .color(colors::TEXT_SECONDARY),
-        text(value).size(11),
+        text(value).size(15),
     ]
     .into()
 }

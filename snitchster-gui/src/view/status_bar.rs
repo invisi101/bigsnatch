@@ -11,9 +11,9 @@ pub fn view<'a>(
     events_per_second: f64,
 ) -> Element<'a, Message> {
     let status_indicator = if is_connected {
-        text("● Connected").size(11).color(colors::STATUS_CONNECTED)
+        text("● Connected").size(14).color(colors::STATUS_CONNECTED)
     } else {
-        text("● Disconnected").size(11).color(colors::STATUS_DISCONNECTED)
+        text("● Disconnected").size(14).color(colors::STATUS_DISCONNECTED)
     };
 
     container(
@@ -21,15 +21,15 @@ pub fn view<'a>(
             status_indicator,
             Space::with_width(20),
             text(format!("{} connections", total_connections))
-                .size(11)
+                .size(14)
                 .color(colors::TEXT_SECONDARY),
             Space::with_width(20),
             text(format!("{} processes", active_processes))
-                .size(11)
+                .size(14)
                 .color(colors::TEXT_SECONDARY),
             Space::with_width(20),
             text(format!("{:.0} events/sec", events_per_second))
-                .size(11)
+                .size(14)
                 .color(colors::TEXT_SECONDARY),
             Space::with_width(Length::Fill),
         ]

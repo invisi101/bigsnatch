@@ -49,7 +49,7 @@ fn header_cell<'a>(
 ) -> Element<'a, Message> {
     let arrow = if col == current_sort { " v" } else { "" };
     let label_text = text(format!("{}{}", label, arrow))
-        .size(12)
+        .size(16)
         .color(colors::TEXT_SECONDARY);
 
     button(label_text)
@@ -75,12 +75,12 @@ fn connection_row(conn: &ConnectionDisplay, is_selected: bool) -> Element<'_, Me
     };
 
     let row_content = row![
-        text(&conn.time_str).size(12).width(80),
-        text(&conn.process_name).size(12).width(130),
-        text(conn.pid.to_string()).size(12).width(65),
-        text(&conn.display_dest).size(12).width(280).color(dest_color),
-        text(conn.dst_port.to_string()).size(12).width(65),
-        text(&conn.protocol).size(12).width(55).color(proto_color),
+        text(&conn.time_str).size(16).width(80),
+        text(&conn.process_name).size(16).width(130),
+        text(conn.pid.to_string()).size(16).width(65),
+        text(&conn.display_dest).size(16).width(280).color(dest_color),
+        text(conn.dst_port.to_string()).size(16).width(65),
+        text(&conn.protocol).size(16).width(55).color(proto_color),
     ]
     .spacing(2);
 
