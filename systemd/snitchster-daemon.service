@@ -1,0 +1,23 @@
+[Unit]
+Description=Snitchster Network Monitor Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/snitchster-daemon
+ExecStopPost=/bin/rm -f /run/snitchster.sock
+Restart=on-failure
+RestartSec=5
+
+# Security hardening
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths=/run
+PrivateTmp=true
+NoNewPrivileges=false
+
+# Required capabilities for eBPF
+AmbientCapabilities=CAP_BPF CAP_PERFMON CAP_NET_ADMIN CAP_SYS_RESOURCE
+
+[Install]
+WantedBy=multi-user.target

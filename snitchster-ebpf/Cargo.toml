@@ -1,0 +1,24 @@
+[package]
+name = "snitchster-ebpf"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "snitchster-ebpf"
+path = "src/main.rs"
+
+[dependencies]
+aya-ebpf = "0.1"
+aya-log-ebpf = "0.1"
+snitchster-common = { path = "../snitchster-common" }
+
+[profile.dev]
+opt-level = 2
+overflow-checks = false
+debug = false
+lto = true
+panic = "abort"
+
+[profile.release]
+lto = true
+panic = "abort"

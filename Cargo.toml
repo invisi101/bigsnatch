@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = [
+    "snitchster-common",
+    "snitchster-daemon",
+    "snitchster-gui",
+]
+
+# eBPF crate is excluded - it targets bpfel-unknown-none
+exclude = ["snitchster-ebpf"]
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["full"] }
+tonic = "0.12"
+prost = "0.13"
+tonic-build = "0.12"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1"

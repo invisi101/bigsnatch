@@ -1,0 +1,19 @@
+[package]
+name = "snitchster-gui"
+version = "0.1.0"
+edition = "2021"
+
+[build-dependencies]
+tonic-build = { workspace = true }
+
+[dependencies]
+tokio = { workspace = true }
+tonic = { workspace = true }
+prost = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }
+iced = { version = "0.13", features = ["tokio"] }
+chrono = "0.4"
+tower = "0.4"
+hyper-util = "0.1"

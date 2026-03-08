@@ -1,0 +1,82 @@
+syntax = "proto3";
+package snitchster;
+
+service Monitor {
+    // Stream connection events in real-time from daemon to GUI
+    rpc Subscribe(SubscribeRequest) returns (stream ServerEvent);
+
+    // Get snapshot of recent connections
+    rpc GetConnections(GetConnectionsRequest) returns (GetConnectionsResponse);
+
+    // Get daemon status
+    rpc GetStatus(Empty) returns (DaemonStatus);
+}
+
+message SubscribeRequest {
+    FilterConfig filter = 1;
+}
+
+message ServerEvent {
+    oneof event {
+        ConnectionEvent connection = 1;
+        DaemonStatus status_update = 2;
+    }
+}
+
+message ConnectionEvent {
+    uint64 id = 1;
+    uint64 timestamp_ns = 2;
+    uint32 pid = 3;
+    string process_name = 4;
+    string exe_path = 5;
+    string cmdline = 6;
+    uint32 uid = 7;
+    string username = 8;
+    Protocol protocol = 9;
+    string src_addr = 10;
+    uint32 src_port = 11;
+    string dst_addr = 12;
+    uint32 dst_port = 13;
+    string domain = 14;
+    IpVersion ip_version = 15;
+}
+
+enum Protocol {
+    TCP = 0;
+    UDP = 1;
+}
+
+enum IpVersion {
+    V4 = 0;
+    V6 = 1;
+}
+
+message FilterConfig {
+    repeated string process_names = 1;
+    repeated string domains = 2;
+    repeated uint32 ports = 3;
+    bool tcp = 4;
+    bool udp = 5;
+}
+
+message DaemonStatus {
+    uint64 total_connections = 1;
+    uint64 active_processes = 2;
+    uint64 dns_cache_entries = 3;
+    uint64 uptime_seconds = 4;
+    double events_per_second = 5;
+    bool ebpf_loaded = 6;
+}
+
+message GetConnectionsRequest {
+    uint32 limit = 1;
+    uint32 offset = 2;
+    FilterConfig filter = 3;
+}
+
+message GetConnectionsResponse {
+    repeated ConnectionEvent connections = 1;
+    uint32 total = 2;
+}
+
+message Empty {}

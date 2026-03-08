@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=BigSnatch
+Comment=Real-time network connection monitor
+GenericName=Network Monitor
+Exec=snitchster
+Terminal=false
+Type=Application
+Icon=bigsnatch
+Categories=Network;Monitor;System;Security;
+Keywords=network;firewall;monitor;connections;snitch;ebpf;
+StartupWMClass=snitchster-gui

@@ -1,0 +1,11 @@
+[package]
+name = "snitchster-common"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+# Enable userspace-only dependencies
+userspace = []
+
+[dependencies]
