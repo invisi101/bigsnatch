@@ -1,3 +1,4 @@
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -13,11 +14,27 @@ use crate::process_cache::ProcessCache;
 use crate::proto;
 use crate::proto::monitor_server::{Monitor, MonitorServer};
 
+/// Shared state for tracking connected subscribers
+pub struct ClientTracker {
+    pub subscriber_count: AtomicUsize,
+    pub had_subscriber: AtomicBool,
+}
+
+impl ClientTracker {
+    pub fn new() -> Self {
+        Self {
+            subscriber_count: AtomicUsize::new(0),
+            had_subscriber: AtomicBool::new(false),
+        }
+    }
+}
+
 pub struct MonitorService {
     event_tx: broadcast::Sender<proto::ConnectionEvent>,
     process_cache: Arc<ProcessCache>,
     dns_cache: Arc<DnsCache>,
     start_time: Instant,
+    tracker: Arc<ClientTracker>,
 }
 
 impl MonitorService {
@@ -26,12 +43,14 @@ impl MonitorService {
         process_cache: Arc<ProcessCache>,
         dns_cache: Arc<DnsCache>,
         start_time: Instant,
+        tracker: Arc<ClientTracker>,
     ) -> Self {
         Self {
             event_tx,
             process_cache,
             dns_cache,
             start_time,
+            tracker,
         }
     }
 }
@@ -49,6 +68,13 @@ impl Monitor for MonitorService {
         _request: Request<proto::SubscribeRequest>,
     ) -> Result<Response<Self::SubscribeStream>, Status> {
         let mut rx = self.event_tx.subscribe();
+        let tracker = self.tracker.clone();
+
+        // Track this subscriber
+        tracker.subscriber_count.fetch_add(1, Ordering::SeqCst);
+        tracker.had_subscriber.store(true, Ordering::SeqCst);
+        let count = tracker.subscriber_count.load(Ordering::SeqCst);
+        info!("GUI client connected ({} active)", count);
 
         let stream = async_stream::stream! {
             loop {
@@ -67,6 +93,10 @@ impl Monitor for MonitorService {
                     }
                 }
             }
+
+            // Subscriber disconnected
+            let remaining = tracker.subscriber_count.fetch_sub(1, Ordering::SeqCst) - 1;
+            info!("GUI client disconnected ({} remaining)", remaining);
         };
 
         Ok(Response::new(Box::pin(stream)))
@@ -103,7 +133,6 @@ pub async fn serve(service: MonitorService, socket_path: &str) -> Result<()> {
 
     let listener = UnixListener::bind(socket_path)?;
 
-    // Make socket accessible to non-root users (the GUI)
     use std::os::unix::fs::PermissionsExt;
     std::fs::set_permissions(socket_path, std::fs::Permissions::from_mode(0o666))?;
 
