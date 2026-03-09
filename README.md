@@ -66,8 +66,6 @@ Requires: Linux kernel >= 5.8 with BTF enabled. Works on Arch, Debian 12+, Ubunt
 yay -S bigsnatch-bin
 ```
 
-Pre-built binary — no compiling, no Rust toolchain needed. Just install and run.
-
 ### Option 2: Debian / Ubuntu
 
 Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
@@ -77,8 +75,6 @@ curl -sL https://github.com/invisi101/bigsnatch/releases/download/v0.1.0/bigsnat
 cd bigsnatch-0.1.0-x86_64-debian
 sudo ./install-debian.sh
 ```
-
-Installs runtime deps (`pkexec`, Wayland/X11 libs) via apt automatically. Requires kernel >= 5.8 with BTF — Ubuntu 22.04+ and Debian 12+ work out of the box.
 
 To uninstall, run from the extracted tarball directory:
 
