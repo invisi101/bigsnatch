@@ -60,7 +60,15 @@ bigsnatch/
 
 Requires: Linux kernel >= 5.8 with BTF enabled, Arch Linux (or any distro with a modern kernel).
 
-### Option 1: Pre-built binary (quickest)
+### Option 1: AUR (recommended)
+
+```bash
+yay -S bigsnatch-bin
+```
+
+Pre-built binary — no compiling, no Rust toolchain needed. Just install and run.
+
+### Option 2: Manual download
 
 Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
 
@@ -74,12 +82,6 @@ To uninstall:
 
 ```bash
 sudo ./uninstall.sh
-```
-
-### Option 2: AUR (recommended for Arch)
-
-```bash
-yay -S bigsnatch
 ```
 
 ### Option 3: Build from source
