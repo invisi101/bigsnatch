@@ -9,7 +9,7 @@ license=('GPL-3.0-only')
 depends=('polkit')
 makedepends=('rust' 'cargo' 'protobuf' 'base-devel' 'wayland' 'libxcb' 'fontconfig' 'freetype2')
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz")
-sha256sums=('SKIP')
+sha256sums=('505aa2dd90dcdc87b48dc3ce085539333c68764d9513659311e7feabad2f60ff')
 
 build() {
   cd "${pkgname}-${pkgver}"
