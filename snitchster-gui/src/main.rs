@@ -43,11 +43,14 @@ fn main() -> iced::Result {
 fn find_daemon_binary() -> String {
     if let Ok(exe) = std::env::current_exe() {
         if let Some(dir) = exe.parent() {
-            let daemon = dir.join("snitchster-daemon");
-            if daemon.exists() {
-                return daemon.to_string_lossy().into_owned();
+            // Check for installed name first, then dev build name
+            for name in &["bigsnatch-daemon", "snitchster-daemon"] {
+                let daemon = dir.join(name);
+                if daemon.exists() {
+                    return daemon.to_string_lossy().into_owned();
+                }
             }
         }
     }
-    "snitchster-daemon".to_string()
+    "bigsnatch-daemon".to_string()
 }

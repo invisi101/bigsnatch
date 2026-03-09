@@ -25,7 +25,7 @@ impl ProcessCache {
     }
 
     pub fn get_or_lookup(&self, pid: u32, uid: u32, comm: &str) -> ProcessInfo {
-        let mut cache = self.cache.lock().unwrap();
+        let mut cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
 
         if let Some(info) = cache.get(&pid) {
             // Verify it's still the same process (comm matches)
@@ -42,12 +42,8 @@ impl ProcessCache {
         info
     }
 
-    pub fn remove(&self, pid: u32) {
-        self.cache.lock().unwrap().remove(&pid);
-    }
-
     pub fn active_count(&self) -> usize {
-        self.cache.lock().unwrap().len()
+        self.cache.lock().unwrap_or_else(|e| e.into_inner()).len()
     }
 
     fn lookup_process(pid: u32, uid: u32, comm: &str) -> ProcessInfo {
@@ -84,16 +80,13 @@ impl ProcessCache {
 }
 
 fn resolve_username(uid: u32) -> String {
-    // Read /etc/passwd to resolve uid -> username
-    if let Ok(passwd) = fs::read_to_string("/etc/passwd") {
-        for line in passwd.lines() {
-            let fields: Vec<&str> = line.split(':').collect();
-            if fields.len() >= 3 {
-                if let Ok(entry_uid) = fields[2].parse::<u32>() {
-                    if entry_uid == uid {
-                        return fields[0].to_string();
-                    }
-                }
+    // Use getpwuid for proper NSS support (LDAP, SSSD, etc.)
+    unsafe {
+        let pw = libc::getpwuid(uid);
+        if !pw.is_null() {
+            let name = std::ffi::CStr::from_ptr((*pw).pw_name);
+            if let Ok(s) = name.to_str() {
+                return s.to_string();
             }
         }
     }

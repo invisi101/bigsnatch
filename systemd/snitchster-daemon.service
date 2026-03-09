@@ -1,10 +1,10 @@
 [Unit]
-Description=Snitchster Network Monitor Daemon
+Description=BigSnatch Network Monitor Daemon
 After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/snitchster-daemon
+ExecStart=/usr/bin/bigsnatch-daemon
 ExecStopPost=/bin/rm -f /run/snitchster.sock
 Restart=on-failure
 RestartSec=5

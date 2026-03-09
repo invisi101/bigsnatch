@@ -23,7 +23,7 @@ impl DnsCache {
     }
 
     pub fn insert(&self, ip: IpAddr, domain: String, ttl_secs: u32) {
-        let mut cache = self.cache.lock().unwrap();
+        let mut cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
 
         // Evict expired entries if we're at capacity
         if cache.len() >= self.max_entries {
@@ -45,7 +45,7 @@ impl DnsCache {
     }
 
     pub fn lookup(&self, ip: &IpAddr) -> Option<String> {
-        let cache = self.cache.lock().unwrap();
+        let cache = self.cache.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(entry) = cache.get(ip) {
             if entry.inserted_at.elapsed() < entry.ttl {
                 return Some(entry.domain.clone());
@@ -55,6 +55,6 @@ impl DnsCache {
     }
 
     pub fn len(&self) -> usize {
-        self.cache.lock().unwrap().len()
+        self.cache.lock().unwrap_or_else(|e| e.into_inner()).len()
     }
 }

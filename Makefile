@@ -28,9 +28,9 @@ dev-gui:
 dev: dev-ebpf dev-daemon dev-gui
 
 install: all
-	install -Dm755 target/release/snitchster-daemon /usr/bin/snitchster-daemon
-	install -Dm755 target/release/snitchster-gui /usr/bin/snitchster
-	install -Dm644 systemd/snitchster-daemon.service /usr/lib/systemd/system/
+	install -Dm755 target/release/snitchster-daemon /usr/bin/bigsnatch-daemon
+	install -Dm755 target/release/snitchster-gui /usr/bin/bigsnatch
+	install -Dm644 systemd/snitchster-daemon.service /usr/lib/systemd/system/bigsnatch-daemon.service
 	install -Dm644 assets/bigsnatch.svg /usr/share/icons/hicolor/scalable/apps/bigsnatch.svg
 	install -Dm644 assets/bigsnatch.desktop /usr/share/applications/bigsnatch.desktop
 

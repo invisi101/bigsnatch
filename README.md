@@ -58,43 +58,39 @@ bigsnatch/
 
 ## Install
 
-### Prerequisites
+Requires: Linux kernel >= 5.8 with BTF enabled, Arch Linux (or any distro with a modern kernel).
 
-Linux kernel >= 5.8 with BTF enabled, Arch Linux (or any distro with a modern kernel).
+### Option 1: Pre-built binary (quickest)
 
-Run the dependency installer to set up everything needed for building:
+Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
 
 ```bash
-./install-deps.sh
+tar xzf bigsnatch-*-x86_64.tar.gz
+cd bigsnatch-*-x86_64
+sudo ./install.sh
 ```
 
-This installs:
-- **System packages** — `base-devel`, `protobuf`, `wayland`, `libxcb`, `fontconfig`, `freetype2`, `polkit`
-- **Rust toolchain** — stable + nightly with `rust-src`
-- **bpf-linker** — eBPF linker for the kernel probe programs
-- Verifies your kernel version and BTF support
+To uninstall:
 
-### Build from source
+```bash
+sudo ./uninstall.sh
+```
+
+### Option 2: AUR (recommended for Arch)
+
+```bash
+yay -S bigsnatch
+```
+
+### Option 3: Build from source
 
 ```bash
 git clone https://github.com/invisi101/bigsnatch.git
 cd bigsnatch
-./install-deps.sh
+./install-deps.sh    # installs build dependencies + Rust toolchain
 make all
-```
-
-### System-wide install
-
-```bash
 sudo make install
 ```
-
-This installs:
-- `/usr/bin/snitchster-daemon` — privileged daemon
-- `/usr/bin/snitchster` — GUI application
-- `/usr/lib/systemd/system/snitchster-daemon.service` — systemd unit
-- `/usr/share/icons/hicolor/scalable/apps/bigsnatch.svg` — app icon
-- `/usr/share/applications/bigsnatch.desktop` — desktop entry
 
 ## Usage
 
@@ -106,11 +102,11 @@ Search for **BigSnatch** in your application launcher. It will prompt for your p
 
 ```bash
 # Just the GUI (auto-launches daemon via pkexec)
-./target/release/snitchster-gui
+bigsnatch
 
 # Or manually in two terminals
-sudo ./target/release/snitchster-daemon   # Terminal 1
-./target/release/snitchster-gui           # Terminal 2
+sudo bigsnatch-daemon   # Terminal 1
+bigsnatch               # Terminal 2
 ```
 
 ## GUI

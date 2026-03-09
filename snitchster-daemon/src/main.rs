@@ -32,10 +32,10 @@ async fn main() -> Result<()> {
         .init();
 
     if !nix::unistd::Uid::effective().is_root() {
-        bail!("snitchster-daemon must run as root (required for eBPF)");
+        bail!("bigsnatch-daemon must run as root (required for eBPF)");
     }
 
-    info!("Starting snitchster daemon");
+    info!("Starting bigsnatch daemon");
 
     let start_time = Instant::now();
     let process_cache = Arc::new(ProcessCache::new());
