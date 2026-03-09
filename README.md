@@ -58,7 +58,7 @@ bigsnatch/
 
 ## Install
 
-Requires: Linux kernel >= 5.8 with BTF enabled, Arch Linux (or any distro with a modern kernel).
+Requires: Linux kernel >= 5.8 with BTF enabled. Works on Arch, Debian 12+, Ubuntu 22.04+, and other modern distros.
 
 ### Option 1: AUR (recommended)
 
@@ -68,7 +68,25 @@ yay -S bigsnatch-bin
 
 Pre-built binary — no compiling, no Rust toolchain needed. Just install and run.
 
-### Option 2: Manual download
+### Option 2: Debian / Ubuntu
+
+Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
+
+```bash
+tar xzf bigsnatch-*-x86_64.tar.gz
+cd bigsnatch-*-x86_64
+sudo ./install-debian.sh
+```
+
+Installs runtime deps (`policykit-1`, Wayland/X11 libs) via apt automatically. Requires kernel >= 5.8 with BTF — Ubuntu 22.04+ and Debian 12+ work out of the box.
+
+To uninstall:
+
+```bash
+sudo ./uninstall.sh
+```
+
+### Option 3: Manual download (Arch, other distros)
 
 Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
 
@@ -84,7 +102,7 @@ To uninstall:
 sudo ./uninstall.sh
 ```
 
-### Option 3: Build from source
+### Option 4: Build from source
 
 ```bash
 git clone https://github.com/invisi101/bigsnatch.git
@@ -130,7 +148,7 @@ Connections are color-coded:
 ## Requirements
 
 - Linux kernel >= 5.8 (RingBuf support, BTF)
-- Arch Linux or any distro with a modern kernel and BTF enabled
+- Arch Linux, Debian 12+, Ubuntu 22.04+, or any distro with a modern kernel and BTF enabled
 - Root access for eBPF (handled automatically via pkexec)
 
 ## Tech stack

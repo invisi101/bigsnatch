@@ -30,6 +30,7 @@ cp assets/bigsnatch.svg "$STAGING/"
 cp systemd/snitchster-daemon.service "$STAGING/bigsnatch-daemon.service"
 cp LICENSE "$STAGING/" 2>/dev/null || true
 cp assets/bigsnatch.desktop "$STAGING/"
+cp install-debian.sh "$STAGING/"
 
 # Create the install script
 cat > "$STAGING/install.sh" <<'INSTALL'
