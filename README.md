@@ -1,4 +1,4 @@
-# bigsnatch
+# Big Snatch
 
 **Real-time Linux network connection monitor** — an eBPF-powered desktop app that shows you exactly what your computer is reaching out to, which process is doing it, and where it's going.
 
