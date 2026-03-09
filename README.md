@@ -58,18 +58,28 @@ bigsnatch/
 
 ## Install
 
-### Build from source
+### Prerequisites
 
-Requires: Rust stable + nightly, `bpf-linker`, `protoc`
+Linux kernel >= 5.8 with BTF enabled, Arch Linux (or any distro with a modern kernel).
+
+Run the dependency installer to set up everything needed for building:
 
 ```bash
-# Install prerequisites
-rustup toolchain install nightly --component rust-src
-cargo install bpf-linker
+./install-deps.sh
+```
 
-# Clone and build
+This installs:
+- **System packages** — `base-devel`, `protobuf`, `wayland`, `libxcb`, `fontconfig`, `freetype2`, `polkit`
+- **Rust toolchain** — stable + nightly with `rust-src`
+- **bpf-linker** — eBPF linker for the kernel probe programs
+- Verifies your kernel version and BTF support
+
+### Build from source
+
+```bash
 git clone https://github.com/invisi101/bigsnatch.git
 cd bigsnatch
+./install-deps.sh
 make all
 ```
 
