@@ -35,8 +35,10 @@ fi
 
 # ---------- Runtime dependencies ----------
 echo -e "${BOLD}Installing runtime dependencies...${RESET}"
-apt-get update -qq
-apt-get install -y -qq policykit-1 libwayland-client0 libxcb1 libfontconfig1 libfreetype6 >/dev/null 2>&1
+apt-get update -qq 2>&1 || true
+apt-get install -y pkexec libwayland-client0 libxcb1 libfontconfig1 libfreetype6 2>&1 || \
+    apt-get install -y policykit-1 libwayland-client0 libxcb1 libfontconfig1 libfreetype6 2>&1 || \
+    echo -e "  (some packages may not be available — install polkit/pkexec manually if needed)"
 ok "Runtime dependencies installed"
 
 # ---------- Install files ----------

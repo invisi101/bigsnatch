@@ -73,12 +73,12 @@ Pre-built binary — no compiling, no Rust toolchain needed. Just install and ru
 Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
 
 ```bash
-tar xzf bigsnatch-*-x86_64.tar.gz
-cd bigsnatch-*-x86_64
+curl -sL https://github.com/invisi101/bigsnatch/releases/download/v0.1.0/bigsnatch-0.1.0-x86_64-debian.tar.gz | tar xz
+cd bigsnatch-0.1.0-x86_64-debian
 sudo ./install-debian.sh
 ```
 
-Installs runtime deps (`policykit-1`, Wayland/X11 libs) via apt automatically. Requires kernel >= 5.8 with BTF — Ubuntu 22.04+ and Debian 12+ work out of the box.
+Installs runtime deps (`pkexec`, Wayland/X11 libs) via apt automatically. Requires kernel >= 5.8 with BTF — Ubuntu 22.04+ and Debian 12+ work out of the box.
 
 To uninstall:
 
