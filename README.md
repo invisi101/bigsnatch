@@ -86,7 +86,7 @@ To uninstall:
 sudo ./uninstall.sh
 ```
 
-### Option 3: Manual download (Arch, other distros)
+### Option 3: Manual download (Arch only)
 
 Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
 
@@ -102,7 +102,7 @@ To uninstall:
 sudo ./uninstall.sh
 ```
 
-### Option 4: Build from source
+### Option 4: Build from source (Arch only)
 
 ```bash
 git clone https://github.com/invisi101/bigsnatch.git
