@@ -80,9 +80,10 @@ sudo ./install-debian.sh
 
 Installs runtime deps (`pkexec`, Wayland/X11 libs) via apt automatically. Requires kernel >= 5.8 with BTF — Ubuntu 22.04+ and Debian 12+ work out of the box.
 
-To uninstall:
+To uninstall, run from the extracted tarball directory:
 
 ```bash
+cd bigsnatch-0.1.0-x86_64-debian
 sudo ./uninstall.sh
 ```
 
@@ -96,9 +97,10 @@ cd bigsnatch-*-x86_64
 sudo ./install.sh
 ```
 
-To uninstall:
+To uninstall, run from the extracted tarball directory:
 
 ```bash
+cd bigsnatch-*-x86_64
 sudo ./uninstall.sh
 ```
 
