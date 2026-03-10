@@ -66,9 +66,9 @@ Requires: Linux kernel >= 5.8 with BTF enabled. Works on Arch, Debian 12+, Ubunt
 yay -S bigsnatch-bin
 ```
 
-### Option 2: Debian / Ubuntu
+### Option 2: Manual install (Debian / Ubuntu)
 
-Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
+Make sure you have `curl` installed (`sudo apt install curl`), then run the following commands in your terminal:
 
 ```bash
 curl -sL https://github.com/invisi101/bigsnatch/releases/download/v0.1.0/bigsnatch-0.1.0-x86_64-debian.tar.gz | tar xz
@@ -83,13 +83,13 @@ cd bigsnatch-0.1.0-x86_64-debian
 sudo ./uninstall.sh
 ```
 
-### Option 3: Manual download (Arch only)
+### Option 3: Manual install (Arch)
 
-Download the latest release from the [Releases](https://github.com/invisi101/bigsnatch/releases) page:
+Make sure you have `curl` installed (`sudo pacman -S --needed curl`), then run the following commands in your terminal:
 
 ```bash
-tar xzf bigsnatch-*-x86_64.tar.gz
-cd bigsnatch-*-x86_64
+curl -sL https://github.com/invisi101/bigsnatch/releases/download/v0.1.0/bigsnatch-0.1.0-x86_64.tar.gz | tar xz
+cd bigsnatch-0.1.0-x86_64
 sudo ./install.sh
 ```
 
