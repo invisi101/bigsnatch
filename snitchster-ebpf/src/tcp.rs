@@ -16,8 +16,8 @@ const SKC_DADDR_OFF: usize = 0;
 const SKC_RCVSADDR_OFF: usize = 4;
 const SKC_DPORT_OFF: usize = 12;
 const SKC_NUM_OFF: usize = 14;
-const SKC_V6_DADDR_OFF: usize = 40;
-const SKC_V6_RCVSADDR_OFF: usize = 56;
+const SKC_V6_DADDR_OFF: usize = 56;
+const SKC_V6_RCVSADDR_OFF: usize = 72;
 
 const AF_INET: u16 = 2;
 const AF_INET6: u16 = 10;
