@@ -1,4 +1,5 @@
 use std::collections::BTreeSet;
+use std::net::IpAddr;
 use std::time::SystemTime;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -23,33 +24,40 @@ pub struct DestinationSummary {
 }
 
 pub fn classify_zone(addr: &str) -> TrafficZone {
-    // IPv4 loopback
-    if addr.starts_with("127.") || addr == "0.0.0.0" {
-        return TrafficZone::Internal;
-    }
-    // IPv4 private
-    if addr.starts_with("10.") || addr.starts_with("192.168.") {
-        return TrafficZone::Internal;
-    }
-    // 172.16.0.0/12
-    if addr.starts_with("172.") {
-        if let Some(second) = addr.split('.').nth(1).and_then(|s| s.parse::<u8>().ok()) {
-            if (16..=31).contains(&second) {
-                return TrafficZone::Internal;
+    let ip: IpAddr = match addr.parse() {
+        Ok(ip) => ip,
+        Err(_) => return TrafficZone::External,
+    };
+
+    match ip {
+        IpAddr::V4(v4) => {
+            if v4.is_loopback() || v4.is_private() || v4.is_link_local() || v4.is_unspecified() {
+                TrafficZone::Internal
+            } else {
+                TrafficZone::External
+            }
+        }
+        IpAddr::V6(v6) => {
+            // Unwrap IPv4-mapped IPv6 (::ffff:192.168.x.x) and re-classify as IPv4
+            if let Some(v4) = v6.to_ipv4_mapped() {
+                return if v4.is_loopback() || v4.is_private() || v4.is_link_local() || v4.is_unspecified() {
+                    TrafficZone::Internal
+                } else {
+                    TrafficZone::External
+                };
+            }
+            // ULA (fc00::/7) — Rust stdlib has no built-in method
+            let is_ula = (v6.segments()[0] & 0xfe00) == 0xfc00;
+            if v6.is_loopback()
+                || v6.is_unspecified()
+                || v6.is_unicast_link_local()
+                || v6.is_multicast()
+                || is_ula
+            {
+                TrafficZone::Internal
+            } else {
+                TrafficZone::External
             }
         }
     }
-    // IPv4 link-local
-    if addr.starts_with("169.254.") {
-        return TrafficZone::Internal;
-    }
-    // IPv6 loopback and private
-    if addr == "::1"
-        || addr.starts_with("fe80:")
-        || addr.starts_with("fd")
-        || addr.starts_with("fc")
-    {
-        return TrafficZone::Internal;
-    }
-    TrafficZone::External
 }

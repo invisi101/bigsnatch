@@ -124,8 +124,16 @@ fn enrich_event(
         // Fallback: try system reverse DNS lookup for IPs we missed
         // Skip private/loopback addresses — no point in reverse-looking those up
         let skip = match dst_addr {
-            IpAddr::V4(v4) => v4.is_loopback() || v4.is_private() || v4.is_link_local(),
-            IpAddr::V6(v6) => v6.is_loopback(),
+            IpAddr::V4(v4) => v4.is_loopback() || v4.is_private() || v4.is_link_local() || v4.is_unspecified(),
+            IpAddr::V6(v6) => {
+                // Unwrap IPv4-mapped and apply IPv4 rules
+                if let Some(v4) = v6.to_ipv4_mapped() {
+                    v4.is_loopback() || v4.is_private() || v4.is_link_local() || v4.is_unspecified()
+                } else {
+                    let is_ula = (v6.segments()[0] & 0xfe00) == 0xfc00;
+                    v6.is_loopback() || v6.is_unspecified() || v6.is_unicast_link_local() || v6.is_multicast() || is_ula
+                }
+            }
         };
         if skip {
             return String::new();
