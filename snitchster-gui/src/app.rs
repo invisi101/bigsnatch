@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::time::{Instant, SystemTime};
 
 use iced::widget::{column, container, horizontal_rule, row, vertical_rule};
-use iced::{Element, Length, Subscription};
+use iced::{Element, Length, Subscription, Task};
 
 use crate::message::{DestSortColumn, Message, ProtocolFilter};
 use crate::model::connection::ConnectionDisplay;
@@ -73,11 +73,22 @@ impl Default for App {
 }
 
 impl App {
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
+            Message::CopyToClipboard(text) => {
+                return iced::clipboard::write(text);
+            }
+
+            Message::CopySelected => {
+                if let Some(text) = self.selected_copy_text() {
+                    return Task::done(Message::CopyToClipboard(text));
+                }
+                return Task::none();
+            }
+
             Message::ConnectionReceived(event) => {
                 if self.is_paused {
-                    return;
+                    return Task::none();
                 }
 
                 let conn = ConnectionDisplay::from(event);
@@ -257,6 +268,7 @@ impl App {
                 self.events_per_second = self.events_window.len() as f64 / 5.0;
             }
         }
+        Task::none()
     }
 
     pub fn view(&self) -> Element<'_, Message> {
@@ -332,7 +344,42 @@ impl App {
     }
 
     pub fn subscription(&self) -> Subscription<Message> {
-        daemon_sub::daemon_events()
+        Subscription::batch([
+            daemon_sub::daemon_events(),
+            iced::keyboard::on_key_press(|key, modifiers| {
+                if modifiers.control() {
+                    if let iced::keyboard::Key::Character(c) = &key {
+                        if c.as_str() == "c" {
+                            return Some(Message::CopySelected);
+                        }
+                    }
+                }
+                None
+            }),
+        ])
+    }
+
+    fn selected_copy_text(&self) -> Option<String> {
+        if self.drill_down_active {
+            self.selected_connection_id.and_then(|id| {
+                self.drill_down_connections.iter().find(|c| c.id == id).map(|conn| {
+                    let dest = if conn.domain.is_empty() {
+                        format!("{}:{}", conn.dst_addr, conn.dst_port)
+                    } else {
+                        format!("{} ({}):{}",  conn.domain, conn.dst_addr, conn.dst_port)
+                    };
+                    format!("{}\t{}\t{}\t{}\t{}", conn.process_name, conn.pid, dest, conn.protocol, conn.username)
+                })
+            })
+        } else {
+            self.selected_destination.as_ref().and_then(|dst_addr| {
+                self.filtered_destinations.iter().find(|d| &d.dst_addr == dst_addr).map(|dest| {
+                    let ports = dest.ports.iter().map(|p| p.to_string()).collect::<Vec<_>>().join(",");
+                    let protos = dest.protocols.iter().cloned().collect::<Vec<_>>().join("/");
+                    format!("{}\t{}\t{}\t{}\t{}", dest.process_name, dest.display_dest, dest.dst_addr, ports, protos)
+                })
+            })
+        }
     }
 
     fn rebuild_destinations(&mut self) {

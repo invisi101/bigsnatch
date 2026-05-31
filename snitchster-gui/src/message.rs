@@ -26,6 +26,10 @@ pub enum Message {
     DrillDownBack,
     ConnectionSelected(Option<u64>),
 
+    // Clipboard
+    CopyToClipboard(String),
+    CopySelected,
+
     // Internal
     Tick,
 }

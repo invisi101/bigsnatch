@@ -1,4 +1,4 @@
-use iced::widget::{column, container, row, scrollable, text, text::Wrapping};
+use iced::widget::{button, column, container, row, scrollable, text, text::Wrapping};
 use iced::{Element, Length};
 
 use crate::message::Message;
@@ -126,11 +126,19 @@ fn placeholder(msg: &str) -> Element<'_, Message> {
 }
 
 fn detail_line<'a>(label: &'a str, value: String) -> Element<'a, Message> {
+    let value_copy = value.clone();
     row![
         text(format!("{}: ", label))
             .size(15)
             .color(colors::TEXT_SECONDARY),
-        text(value).size(15).wrapping(Wrapping::WordOrGlyph),
+        button(text(value).size(15).wrapping(Wrapping::WordOrGlyph))
+            .on_press(Message::CopyToClipboard(value_copy))
+            .padding(0)
+            .style(|_theme, _status| button::Style {
+                background: None,
+                text_color: colors::TEXT_PRIMARY,
+                ..Default::default()
+            }),
     ]
     .into()
 }
