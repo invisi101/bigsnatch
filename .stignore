@@ -1,0 +1,3 @@
+target/
+snitchster-ebpf/target/
+*.tar.gz

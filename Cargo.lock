@@ -3778,11 +3778,11 @@ dependencies = [
 
 [[package]]
 name = "snitchster-common"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "snitchster-daemon"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "async-stream",
@@ -3806,7 +3806,7 @@ dependencies = [
 
 [[package]]
 name = "snitchster-gui"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
